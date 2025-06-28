@@ -46,6 +46,19 @@ export const ScoreTable = ({ matchups, onMatchupsChange }: ScoreTableProps) => {
     return `${team.player1.name} & ${team.player2.name}`;
   };
 
+  const getTeamStyle = (teamScore: number, opponentScore: number) => {
+    if (teamScore === 0 && opponentScore === 0) {
+      return {}; // No background for matches with no scores
+    }
+    if (teamScore > opponentScore) {
+      return { backgroundColor: "#d4edda" }; // Light green for winning team
+    } else if (teamScore < opponentScore) {
+      return { backgroundColor: "#f8d7da" }; // Light red for losing team
+    } else {
+      return { backgroundColor: "#fff3cd" }; // Light yellow for tie
+    }
+  };
+
   const matches = getAllMatches();
 
   if (matches.length === 0) {
@@ -63,15 +76,16 @@ export const ScoreTable = ({ matchups, onMatchupsChange }: ScoreTableProps) => {
             <th>Score</th>
             <th>Team 2</th>
             <th>Score</th>
-            <th>Status</th>
           </tr>
         </thead>
         <tbody>
           {matches.map((match, index) => (
-            <tr key={match.id} className={match.isCompleted ? "completed" : ""}>
+            <tr key={match.id}>
               <td>{index + 1}</td>
-              <td>{formatTeamName(match.team1)}</td>
-              <td>
+              <td style={getTeamStyle(match.team1Score, match.team2Score)}>
+                {formatTeamName(match.team1)}
+              </td>
+              <td style={getTeamStyle(match.team1Score, match.team2Score)}>
                 <input
                   type="number"
                   min="0"
@@ -89,8 +103,10 @@ export const ScoreTable = ({ matchups, onMatchupsChange }: ScoreTableProps) => {
                   className="score-input"
                 />
               </td>
-              <td>{formatTeamName(match.team2)}</td>
-              <td>
+              <td style={getTeamStyle(match.team2Score, match.team1Score)}>
+                {formatTeamName(match.team2)}
+              </td>
+              <td style={getTeamStyle(match.team2Score, match.team1Score)}>
                 <input
                   type="number"
                   min="0"
@@ -107,13 +123,6 @@ export const ScoreTable = ({ matchups, onMatchupsChange }: ScoreTableProps) => {
                   }}
                   className="score-input"
                 />
-              </td>
-              <td>
-                {match.isCompleted ? (
-                  <span className="status-completed">Completed</span>
-                ) : (
-                  <span className="status-pending">Pending</span>
-                )}
               </td>
             </tr>
           ))}
