@@ -1,4 +1,15 @@
 import { useState } from "react";
+import {
+  Box,
+  VStack,
+  HStack,
+  Input,
+  Button,
+  Text,
+  SimpleGrid,
+  Badge,
+  Heading,
+} from "@chakra-ui/react";
 import type { Player } from "../types";
 
 interface PlayerManagerProps {
@@ -31,29 +42,50 @@ export const PlayerManager = ({
   };
 
   return (
-    <div className="player-manager">
-      <h2>Player Management</h2>
-      <div className="add-player-form">
-        <input
-          type="text"
-          placeholder="Enter player name"
-          value={playerName}
-          onChange={(e) => setPlayerName(e.target.value)}
-          onKeyDown={handleInputKeyDown}
-        />
-        <button onClick={handleAddPlayer} disabled={!playerName.trim()}>
-          Add Player
-        </button>
-      </div>
+    <Box>
+      <Heading size="md" mb={4}>
+        Player Management
+      </Heading>
 
-      <div className="player-list-section">
-        <h3>Players ({players.length})</h3>
-        <ul className="player-list">
-          {players.map((player) => (
-            <li key={player.id}>{player.name}</li>
-          ))}
-        </ul>
-      </div>
-    </div>
+      <VStack gap={4} align="stretch">
+        <HStack>
+          <Input
+            placeholder="Enter player name"
+            value={playerName}
+            onChange={(e) => setPlayerName(e.target.value)}
+            onKeyDown={handleInputKeyDown}
+            size="md"
+          />
+          <Button
+            onClick={handleAddPlayer}
+            disabled={!playerName.trim()}
+            colorScheme="green"
+            size="md"
+          >
+            Add Player
+          </Button>
+        </HStack>
+
+        <Box>
+          <Text fontSize="lg" fontWeight="medium" mb={3}>
+            Players ({players.length})
+          </Text>
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={3}>
+            {players.map((player) => (
+              <Badge
+                key={player.id}
+                colorScheme="blue"
+                variant="subtle"
+                p={3}
+                textAlign="center"
+                fontSize="md"
+              >
+                {player.name}
+              </Badge>
+            ))}
+          </SimpleGrid>
+        </Box>
+      </VStack>
+    </Box>
   );
 };

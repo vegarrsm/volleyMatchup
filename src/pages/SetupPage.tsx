@@ -1,4 +1,15 @@
 import { useState } from "react";
+import {
+  Box,
+  VStack,
+  Heading,
+  Text,
+  Input,
+  Button,
+  Grid,
+  GridItem,
+  HStack,
+} from "@chakra-ui/react";
 import { PlayerManager } from "../components/PlayerManager";
 import {
   generateMatchups,
@@ -59,22 +70,40 @@ export const SetupPage = ({ onSetupComplete }: SetupPageProps) => {
   };
 
   return (
-    <div className="setup-page">
-      <h1>Tournament Setup</h1>
+    <Box>
+      <VStack gap={8} align="stretch">
+        <Heading size="xl" textAlign="center">
+          Tournament Setup
+        </Heading>
 
-      <div className="setup-sections">
-        <section className="player-section">
+        {/* Player Management Section */}
+        <Box
+          bg="gray.50"
+          p={6}
+          borderRadius="lg"
+          border="1px"
+          borderColor="gray.200"
+        >
           <PlayerManager players={players} onPlayersChange={setPlayers} />
-        </section>
+        </Box>
 
-        {players.length >= 4 && (
-          <section className="generation-section">
-            <h2>Match Generation</h2>
+        {/* Match Generation Section */}
+        <Box
+          bg="gray.50"
+          p={6}
+          borderRadius="lg"
+          border="1px"
+          borderColor="gray.200"
+        >
+          <VStack gap={6} align="stretch">
+            <Heading size="md">Match Generation</Heading>
 
-            <div className="generation-method">
-              <h3>Generation Method:</h3>
-              <div className="radio-group">
-                <label>
+            <Box>
+              <Text fontWeight="medium" mb={3}>
+                Generation Method:
+              </Text>
+              <VStack gap={3} align="start">
+                <HStack>
                   <input
                     type="radio"
                     name="generationMethod"
@@ -84,9 +113,9 @@ export const SetupPage = ({ onSetupComplete }: SetupPageProps) => {
                       setGenerationMethod(e.target.value as GenerationMethod)
                     }
                   />
-                  Matches per team matchup
-                </label>
-                <label>
+                  <Text>Matches per team matchup</Text>
+                </HStack>
+                <HStack>
                   <input
                     type="radio"
                     name="generationMethod"
@@ -96,87 +125,153 @@ export const SetupPage = ({ onSetupComplete }: SetupPageProps) => {
                       setGenerationMethod(e.target.value as GenerationMethod)
                     }
                   />
-                  Matches per player
-                </label>
-              </div>
-            </div>
+                  <Text>Matches per player</Text>
+                </HStack>
+              </VStack>
+            </Box>
 
-            <div className="matches-input">
-              {generationMethod === "per-matchup" ? (
-                <>
-                  <label htmlFor="matches-per-matchup">
-                    Matches per team matchup:
-                  </label>
-                  <input
-                    id="matches-per-matchup"
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={matchesPerMatchup}
-                    onChange={(e) =>
-                      setMatchesPerMatchup(parseInt(e.target.value) || 1)
-                    }
-                  />
-                </>
-              ) : (
-                <>
-                  <label htmlFor="matches-per-player">
-                    Matches per player:
-                  </label>
-                  <input
-                    id="matches-per-player"
-                    type="number"
-                    min="1"
-                    max="20"
-                    value={matchesPerPlayer}
-                    onChange={(e) =>
-                      setMatchesPerPlayer(parseInt(e.target.value) || 1)
-                    }
-                  />
-                </>
-              )}
-            </div>
+            <Box>
+              <Text fontWeight="medium" mb={2}>
+                {generationMethod === "per-matchup"
+                  ? "Matches per team matchup:"
+                  : "Matches per player:"}
+              </Text>
+              <Input
+                type="number"
+                min={1}
+                max={generationMethod === "per-matchup" ? 10 : 20}
+                value={
+                  generationMethod === "per-matchup"
+                    ? matchesPerMatchup
+                    : matchesPerPlayer
+                }
+                onChange={(e) => {
+                  const value = parseInt(e.target.value) || 1;
+                  if (generationMethod === "per-matchup") {
+                    setMatchesPerMatchup(value);
+                  } else {
+                    setMatchesPerPlayer(value);
+                  }
+                }}
+                width="200px"
+              />
+            </Box>
 
-            <button onClick={handleGeneratePreview} className="generate-btn">
+            <Button
+              onClick={handleGeneratePreview}
+              disabled={players.length < 4}
+              colorScheme="blue"
+              size="lg"
+              title={
+                players.length < 4
+                  ? "At least 4 players are needed to generate matches"
+                  : ""
+              }
+            >
               Generate Preview
-            </button>
-          </section>
-        )}
+            </Button>
+          </VStack>
+        </Box>
 
+        {/* Preview Section */}
         {previewMatchups.length > 0 && (
-          <section className="preview-section">
-            <h2>Match Preview ({getAllMatches().length} total matches)</h2>
-            <div className="preview-table">
-              <table className="matches-table">
-                <thead>
-                  <tr>
-                    <th>Match #</th>
-                    <th>Team 1</th>
-                    <th>vs</th>
-                    <th>Team 2</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {getAllMatches().map((match, index) => (
-                    <tr key={match.id}>
-                      <td>{index + 1}</td>
-                      <td>{formatTeamName(match.team1)}</td>
-                      <td>vs</td>
-                      <td>{formatTeamName(match.team2)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <Box
+            bg="gray.50"
+            p={6}
+            borderRadius="lg"
+            border="1px"
+            borderColor="gray.200"
+          >
+            <VStack gap={6} align="stretch">
+              <Heading size="md">
+                Match Preview ({getAllMatches().length} total matches)
+              </Heading>
 
-            <div className="start-tournament">
-              <button onClick={handleStartTournament} className="start-btn">
-                Start Tournament
-              </button>
-            </div>
-          </section>
+              <Box overflowX="auto">
+                <Box
+                  border="1px"
+                  borderColor="gray.200"
+                  borderRadius="md"
+                  overflow="hidden"
+                >
+                  {/* Header */}
+                  <Grid templateColumns="1fr 2fr 1fr 2fr" bg="gray.100">
+                    <GridItem p={3} borderRight="1px" borderColor="gray.200">
+                      <Text fontWeight="bold">Match #</Text>
+                    </GridItem>
+                    <GridItem p={3} borderRight="1px" borderColor="gray.200">
+                      <Text fontWeight="bold">Team 1</Text>
+                    </GridItem>
+                    <GridItem p={3} borderRight="1px" borderColor="gray.200">
+                      <Text fontWeight="bold">vs</Text>
+                    </GridItem>
+                    <GridItem p={3}>
+                      <Text fontWeight="bold">Team 2</Text>
+                    </GridItem>
+                  </Grid>
+
+                  {/* Rows */}
+                  {getAllMatches().map((match, index) => (
+                    <Grid
+                      key={match.id}
+                      templateColumns="1fr 2fr 1fr 2fr"
+                      borderTop="1px"
+                      borderColor="gray.200"
+                      _hover={{ bg: "gray.50" }}
+                    >
+                      <GridItem p={3} borderRight="1px" borderColor="gray.200">
+                        <Text fontWeight="medium">{index + 1}</Text>
+                      </GridItem>
+                      <GridItem p={3} borderRight="1px" borderColor="gray.200">
+                        <Text>{formatTeamName(match.team1)}</Text>
+                      </GridItem>
+                      <GridItem
+                        p={3}
+                        borderRight="1px"
+                        borderColor="gray.200"
+                        textAlign="center"
+                      >
+                        <Text fontWeight="bold">vs</Text>
+                      </GridItem>
+                      <GridItem p={3}>
+                        <Text>{formatTeamName(match.team2)}</Text>
+                      </GridItem>
+                    </Grid>
+                  ))}
+                </Box>
+              </Box>
+
+              <Box textAlign="center">
+                <Button
+                  onClick={handleStartTournament}
+                  colorScheme="green"
+                  size="lg"
+                >
+                  Start Tournament
+                </Button>
+              </Box>
+            </VStack>
+          </Box>
         )}
-      </div>
-    </div>
+
+        {/* Warning for insufficient players */}
+        {players.length > 0 && players.length < 4 && (
+          <Box
+            bg="orange.50"
+            p={4}
+            borderRadius="md"
+            border="1px"
+            borderColor="orange.200"
+          >
+            <Text color="orange.800">
+              ⚠️ You need at least 4 players to generate beach volleyball
+              matchups.
+            </Text>
+          </Box>
+        )}
+      </VStack>
+    </Box>
   );
 };
+
+// TODO: Predefined teams

@@ -1,8 +1,8 @@
 import { useState } from "react";
+import { ChakraProvider, Container, defaultSystem } from "@chakra-ui/react";
 import { SetupPage } from "./pages/SetupPage";
 import { TournamentPage } from "./pages/TournamentPage";
 import type { Matchup } from "./types";
-import "./App.css";
 
 function App() {
   const [currentPage, setCurrentPage] = useState<"setup" | "tournament">(
@@ -20,18 +20,22 @@ function App() {
   };
 
   return (
-    <div className="app-container">
-      {currentPage === "setup" ? (
-        <SetupPage onSetupComplete={handleSetupComplete} />
-      ) : (
-        <TournamentPage
-          matchups={matchups}
-          onMatchupsChange={setMatchups}
-          onBackToSetup={handleBackToSetup}
-        />
-      )}
-    </div>
+    <ChakraProvider value={defaultSystem}>
+      <Container maxW="xl" py={8}>
+        {currentPage === "setup" ? (
+          <SetupPage onSetupComplete={handleSetupComplete} />
+        ) : (
+          <TournamentPage
+            matchups={matchups}
+            onMatchupsChange={setMatchups}
+            onBackToSetup={handleBackToSetup}
+          />
+        )}
+      </Container>
+    </ChakraProvider>
   );
 }
 
 export default App;
+
+// TODO: Enkelt API. Bruk koder for å "joine" turnering. Admin kode og deltager kode for bare se eller edite

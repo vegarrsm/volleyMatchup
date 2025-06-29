@@ -1,11 +1,26 @@
-import type { Matchup } from "../types";
+import {
+  Box,
+  Input,
+  Text,
+  VStack,
+  Heading,
+  Grid,
+  GridItem,
+  Button,
+} from "@chakra-ui/react";
+import type { Matchup, Match } from "../types";
 
 interface ScoreTableProps {
   matchups: Matchup[];
   onMatchupsChange: (matchups: Matchup[]) => void;
+  onStartMatch?: (match: Match) => void;
 }
 
-export const ScoreTable = ({ matchups, onMatchupsChange }: ScoreTableProps) => {
+export const ScoreTable = ({
+  matchups,
+  onMatchupsChange,
+  onStartMatch,
+}: ScoreTableProps) => {
   const updateMatchScore = (
     matchupId: string,
     matchId: string,
@@ -46,16 +61,16 @@ export const ScoreTable = ({ matchups, onMatchupsChange }: ScoreTableProps) => {
     return `${team.player1.name} & ${team.player2.name}`;
   };
 
-  const getTeamStyle = (teamScore: number, opponentScore: number) => {
+  const getTeamBgColor = (teamScore: number, opponentScore: number) => {
     if (teamScore === 0 && opponentScore === 0) {
-      return {}; // No background for matches with no scores
+      return "transparent";
     }
     if (teamScore > opponentScore) {
-      return { backgroundColor: "#d4edda" }; // Light green for winning team
+      return "green.50";
     } else if (teamScore < opponentScore) {
-      return { backgroundColor: "#f8d7da" }; // Light red for losing team
+      return "red.50";
     } else {
-      return { backgroundColor: "#fff3cd" }; // Light yellow for tie
+      return "yellow.50";
     }
   };
 
@@ -66,68 +81,132 @@ export const ScoreTable = ({ matchups, onMatchupsChange }: ScoreTableProps) => {
   }
 
   return (
-    <div className="score-table">
-      <h2>Matches ({matches.length} total)</h2>
-      <table className="matches-table">
-        <thead>
-          <tr>
-            <th>Match #</th>
-            <th>Team 1</th>
-            <th>Score</th>
-            <th>Team 2</th>
-            <th>Score</th>
-          </tr>
-        </thead>
-        <tbody>
-          {matches.map((match, index) => (
-            <tr key={match.id}>
-              <td>{index + 1}</td>
-              <td style={getTeamStyle(match.team1Score, match.team2Score)}>
-                {formatTeamName(match.team1)}
-              </td>
-              <td style={getTeamStyle(match.team1Score, match.team2Score)}>
-                <input
-                  type="number"
-                  min="0"
-                  max="25"
-                  value={match.team1Score}
-                  onChange={(e) => {
-                    const score = parseInt(e.target.value) || 0;
-                    updateMatchScore(
-                      matchups.find((m) => m.matches.includes(match))!.id,
-                      match.id,
-                      score,
-                      match.team2Score
-                    );
-                  }}
-                  className="score-input"
-                />
-              </td>
-              <td style={getTeamStyle(match.team2Score, match.team1Score)}>
-                {formatTeamName(match.team2)}
-              </td>
-              <td style={getTeamStyle(match.team2Score, match.team1Score)}>
-                <input
-                  type="number"
-                  min="0"
-                  max="25"
-                  value={match.team2Score}
-                  onChange={(e) => {
-                    const score = parseInt(e.target.value) || 0;
-                    updateMatchScore(
-                      matchups.find((m) => m.matches.includes(match))!.id,
-                      match.id,
-                      match.team1Score,
-                      score
-                    );
-                  }}
-                  className="score-input"
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Box>
+      <VStack gap={6} align="stretch">
+        <Heading size="lg">Matches ({matches.length} total)</Heading>
+
+        <Box overflowX="auto">
+          <Box
+            border="1px"
+            borderColor="gray.200"
+            borderRadius="md"
+            overflow="hidden"
+          >
+            {/* Header */}
+            <Grid templateColumns="1fr 2fr 1fr 2fr 1fr 1fr" bg="gray.50">
+              <GridItem p={3} borderRight="1px" borderColor="gray.200">
+                <Text fontWeight="bold">Match #</Text>
+              </GridItem>
+              <GridItem p={3} borderRight="1px" borderColor="gray.200">
+                <Text fontWeight="bold">Team 1</Text>
+              </GridItem>
+              <GridItem p={3} borderRight="1px" borderColor="gray.200">
+                <Text fontWeight="bold">Score</Text>
+              </GridItem>
+              <GridItem p={3} borderRight="1px" borderColor="gray.200">
+                <Text fontWeight="bold">Team 2</Text>
+              </GridItem>
+              <GridItem p={3} borderRight="1px" borderColor="gray.200">
+                <Text fontWeight="bold">Score</Text>
+              </GridItem>
+              <GridItem p={3}>
+                <Text fontWeight="bold">Action</Text>
+              </GridItem>
+            </Grid>
+
+            {/* Rows */}
+            {matches.map((match, index) => (
+              <Grid
+                key={match.id}
+                templateColumns="1fr 2fr 1fr 2fr 1fr 1fr"
+                borderTop="1px"
+                borderColor="gray.200"
+                _hover={{ bg: "gray.50" }}
+              >
+                <GridItem p={3} borderRight="1px" borderColor="gray.200">
+                  <Text fontWeight="medium">{index + 1}</Text>
+                </GridItem>
+                <GridItem
+                  p={3}
+                  borderRight="1px"
+                  borderColor="gray.200"
+                  bg={getTeamBgColor(match.team1Score, match.team2Score)}
+                >
+                  <Text fontWeight="medium">{formatTeamName(match.team1)}</Text>
+                </GridItem>
+                <GridItem
+                  p={3}
+                  borderRight="1px"
+                  borderColor="gray.200"
+                  bg={getTeamBgColor(match.team1Score, match.team2Score)}
+                >
+                  <Input
+                    type="number"
+                    min={0}
+                    max={25}
+                    value={match.team1Score}
+                    onChange={(e) => {
+                      const score = parseInt(e.target.value) || 0;
+                      updateMatchScore(
+                        matchups.find((m) => m.matches.includes(match))!.id,
+                        match.id,
+                        score,
+                        match.team2Score
+                      );
+                    }}
+                    size="sm"
+                    width="70px"
+                    textAlign="center"
+                  />
+                </GridItem>
+                <GridItem
+                  p={3}
+                  borderRight="1px"
+                  borderColor="gray.200"
+                  bg={getTeamBgColor(match.team2Score, match.team1Score)}
+                >
+                  <Text fontWeight="medium">{formatTeamName(match.team2)}</Text>
+                </GridItem>
+                <GridItem
+                  p={3}
+                  borderRight="1px"
+                  borderColor="gray.200"
+                  bg={getTeamBgColor(match.team2Score, match.team1Score)}
+                >
+                  <Input
+                    type="number"
+                    min={0}
+                    max={25}
+                    value={match.team2Score}
+                    onChange={(e) => {
+                      const score = parseInt(e.target.value) || 0;
+                      updateMatchScore(
+                        matchups.find((m) => m.matches.includes(match))!.id,
+                        match.id,
+                        match.team1Score,
+                        score
+                      );
+                    }}
+                    size="sm"
+                    width="70px"
+                    textAlign="center"
+                  />
+                </GridItem>
+                <GridItem p={3}>
+                  <Button
+                    onClick={() => onStartMatch?.(match)}
+                    colorScheme="blue"
+                    size="sm"
+                    width="100%"
+                  >
+                    Start Match
+                  </Button>
+                </GridItem>
+              </Grid>
+            ))}
+          </Box>
+        </Box>
+      </VStack>
+    </Box>
   );
 };
