@@ -126,13 +126,6 @@ export const MatchPage = ({
     return `${team.player1.name} & ${team.player2.name}`;
   };
 
-  const team1Points = pointHistory.filter(
-    (p) => p.teamId === match.team1.id
-  ).length;
-  const team2Points = pointHistory.filter(
-    (p) => p.teamId === match.team2.id
-  ).length;
-
   // Get all set numbers
   const allSets = Array.from(
     new Set([1, ...pointHistory.map((p) => p.setNumber)])
@@ -142,6 +135,14 @@ export const MatchPage = ({
   const getPointsForSet = (setNumber: number) => {
     return pointHistory.filter((p) => p.setNumber === setNumber);
   };
+
+  // Get points for the current set
+  const team1CurrentSetPoints = getPointsForSet(currentSet).filter(
+    (p) => p.teamId === match.team1.id
+  ).length;
+  const team2CurrentSetPoints = getPointsForSet(currentSet).filter(
+    (p) => p.teamId === match.team2.id
+  ).length;
 
   // Get set score for a specific set
   const getSetScore = (setNumber: number) => {
@@ -196,7 +197,7 @@ export const MatchPage = ({
         >
           <VStack gap={4}>
             <Heading size="md" textAlign="center">
-              Current Score
+              Current Set Score
             </Heading>
 
             <HStack gap={8} justify="center">
@@ -212,7 +213,7 @@ export const MatchPage = ({
                   px={4}
                   py={2}
                 >
-                  {team1Points}
+                  {team1CurrentSetPoints}
                 </Badge>
                 <Button
                   onClick={() =>
@@ -224,7 +225,7 @@ export const MatchPage = ({
                   +1 Point
                 </Button>
                 <Text fontSize="sm" color="gray.600">
-                  Sets: {setScores.team1Sets}
+                  Sets Won: {setScores.team1Sets}
                 </Text>
               </VStack>
 
@@ -250,7 +251,7 @@ export const MatchPage = ({
                   px={4}
                   py={2}
                 >
-                  {team2Points}
+                  {team2CurrentSetPoints}
                 </Badge>
                 <Button
                   onClick={() =>
@@ -262,7 +263,7 @@ export const MatchPage = ({
                   +1 Point
                 </Button>
                 <Text fontSize="sm" color="gray.600">
-                  Sets: {setScores.team2Sets}
+                  Sets Won: {setScores.team2Sets}
                 </Text>
               </VStack>
             </HStack>
